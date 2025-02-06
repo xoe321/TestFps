@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Ball</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #fpsCounter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="fpsCounter">FPS: 999999999999999999999999999999999999999999999999999999999999999</div>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const fpsCounter = document.getElementById("fpsCounter");
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let balls = [
+            {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: 20,
+                dx: 4, 
+                dy: 2, 
+                gravity: 0.1,
+                friction: 0.99,
+                color: getRandomColor()
+            }
+        ];
+
+        let bounces = [];
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
+        function getRandomColor() {
+            return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+        }
+
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = now;
+                fpsCounter.textContent = `FPS: ${fps}`;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            bounces.forEach(bounce => {
+                ctx.beginPath();
+                ctx.moveTo(bounce.x - 10, bounce.y);
+                ctx.lineTo(bounce.x + 10, bounce.y);
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            });
+            
+            balls.forEach((ball, index) => {
+                ball.dy += ball.gravity; 
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+                
+                if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
+                    ball.dx *= -1; 
+                }
+                
+                if (ball.y + ball.radius >= canvas.height) {
+                    ball.y = canvas.height - ball.radius;
+                    ball.dy *= -1; 
+                    ball.dy *= ball.friction;
+                    ball.color = getRandomColor();
+                    
+                    bounces.push({ x: ball.x, y: ball.y + ball.radius });
+                    
+                    balls.push({ 
+                        ...ball, 
+                        x: ball.x + 10, 
+                        y: ball.y - 30, 
+                        dy: -Math.abs(ball.dy),
+                        dx: -ball.dx 
+                    });
+                }
+                
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ball.color;
+                ctx.fill();
+                ctx.closePath();
+            });
+            
+            requestAnimationFrame(update);
+        }
+        update();
+    </script>
+</body>
+</html>
