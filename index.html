@@ -24,15 +24,26 @@
             padding: 5px 10px;
             border-radius: 5px;
         }
+        #cloneCounter {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
     <div id="fpsCounter">FPS: 999999999999999999999999999999999999999999999999999999999999999</div>
+    <div id="cloneCounter">Clones: 0</div>
     <script>
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
         const fpsCounter = document.getElementById("fpsCounter");
+        const cloneCounter = document.getElementById("cloneCounter");
         
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -54,6 +65,7 @@
         let lastTime = performance.now();
         let frameCount = 0;
         let fps = 0;
+        let cloneCount = 0; // ตัวแปรในการนับจำนวนลูกบอลที่ถูกโคลน
 
         function getRandomColor() {
             return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
@@ -102,6 +114,7 @@
                     
                     bounces.push({ x: ball.x, y: ball.y + ball.radius });
                     
+                    // โคลนลูกบอลใหม่
                     balls.push({ 
                         ...ball, 
                         x: ball.x + 10, 
@@ -109,6 +122,9 @@
                         dy: -Math.abs(ball.dy),
                         dx: -ball.dx 
                     });
+                    
+                    cloneCount++; // เพิ่มจำนวนโคลน
+                    cloneCounter.textContent = `Clones: ${cloneCount}`; // อัปเดตแสดงจำนวนโคลน
                 }
                 
                 ctx.beginPath();
